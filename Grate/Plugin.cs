@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
@@ -16,6 +17,7 @@ using HarmonyLib;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using Valve.Newtonsoft.Json;
 using Console = Grate.Extensions.Console;
 
 namespace Grate;
@@ -43,27 +45,24 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        try
+        Instance = this;
+        HarmonyPatches.ApplyHarmonyPatches();
+        Logging.Init();
+        configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "Grate.cfg"), true);
+        foreach (var moduleType in GrateModule.GetGrateModuleTypes())
         {
-            Instance = this;
-            HarmonyPatches.ApplyHarmonyPatches();
-            Logging.Init();
-            configFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "Grate.cfg"), true);
-            foreach (var moduleType in GrateModule.GetGrateModuleTypes())
-            {
-                var bindConfigs = moduleType.GetMethod("BindConfigEntries");
-                if (bindConfigs != null) bindConfigs.Invoke(null, null);
-            }
-            GorillaTagger.OnPlayerSpawned(OnGameInitialized);
-            assetBundle = AssetUtils.LoadAssetBundle("Grate/Resources/gratebundle");
-            monkeMenuPrefab = assetBundle?.LoadAsset<GameObject>("Bark Menu");
-            monkeMenuPrefab!.name = "Grate Menu";
-            MenuController.BindConfigEntries();
+            var bindConfigs = moduleType.GetMethod("BindConfigEntries");
+            if (bindConfigs != null) bindConfigs.Invoke(null, null);
         }
-        catch (Exception e)
-        {
-            Logging.Warning(e.Message + "\n" + e.StackTrace);
-        }
+        GorillaTagger.OnPlayerSpawned(OnGameInitialized);
+        assetBundle = AssetUtils.LoadAssetBundle("Grate/Resources/gratebundle");
+        monkeMenuPrefab = assetBundle?.LoadAsset<GameObject>("Bark Menu");
+        monkeMenuPrefab!.name = "Grate Menu";
+        MenuController.BindConfigEntries();
+
+        Dictionary<string, string> tmp = new() { { "wawa", "wawa" } };
+        var wawa = JsonConvert.SerializeObject(tmp);
+        File.WriteAllText(Path.Combine(Paths.BepInExRootPath, "Ex.txt"),  wawa);
     }
 
     public void Setup()

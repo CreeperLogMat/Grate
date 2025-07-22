@@ -11,9 +11,9 @@ using NetworkPlayer = NetPlayer;
 
 namespace Grate.Modules.Misc;
 
-public class Bat : GrateModule
+public class BonkBat : GrateModule
 {
-    public static readonly string DisplayName = "Bat";
+    public static string DisplayName = "Bonk Bat";
     private static GameObject? bat;
 
     protected override void Start()
@@ -53,9 +53,9 @@ public class Bat : GrateModule
         if (mod == DisplayName && player != NetworkSystem.Instance.LocalPlayer && player.IsSupporter())
         {
             if (modEnabled)
-                player.Rig()?.gameObject.GetOrAddComponent<Bat>();
+                player.Rig()?.gameObject.GetOrAddComponent<BonkBat>();
             else
-                Destroy(player.Rig()?.gameObject.GetComponent<Bat>());
+                Destroy(player.Rig()?.gameObject.GetComponent<BonkBat>());
         }
     }
 
@@ -82,7 +82,7 @@ public class Bat : GrateModule
 
     private void OnRigCached(NetPlayer player, VRRig rig)
     {
-        rig?.gameObject?.GetComponent<Bat>()?.Obliterate();
+        rig?.gameObject?.GetComponent<BonkBat>()?.Obliterate();
     }
 
     public override string GetDisplayName()
@@ -105,7 +105,7 @@ public class Bat : GrateModule
             networkedPlayer = gameObject.GetComponent<NetworkedPlayer>();
             var rightHand = networkedPlayer.rig.rightHandTransform;
 
-            bat = Instantiate<GameObject>(Bat.bat);
+            bat = Instantiate<GameObject>(BonkBat.bat);
 
             bat.transform.SetParent(rightHand);
             bat.transform.localPosition = new Vector3(0.04f, 0.05f, -0.02f);
@@ -120,7 +120,7 @@ public class Bat : GrateModule
         {
             if (other.layer == LayerMask.NameToLayer("Gorilla Tag Collider"))
             {
-                Bat.bat.GetComponent<AudioSource>().Play();
+                BonkBat.bat.GetComponent<AudioSource>().Play();
             }
         }
 
